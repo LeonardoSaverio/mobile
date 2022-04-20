@@ -7,20 +7,23 @@ import { useNavigation } from "@react-navigation/native";
 interface HeaderProps {
   title: string;
   showCancel?: boolean;
+  hideArrowLeft?: boolean;
 }
 
-export default function Header({ title, showCancel = true }: HeaderProps) {
-  const navigation = useNavigation();
+export default function Header({ title, showCancel = true, hideArrowLeft = false }: HeaderProps) {
+  const navigation = useNavigation<any>();
 
   function handleGoBackToAppHomePage() {
-    // navigation.navigate();
+    navigation.navigate('Home');
   }
 
   return (
-    <View style={styles.container}>
-      <BorderlessButton onPress={navigation.goBack}>
-        <Feather name="arrow-left" size={24} color="#15b6d6" />
-      </BorderlessButton>
+    <View style={[styles.container, hideArrowLeft && {justifyContent: 'center'}]}>
+      {!hideArrowLeft && (
+        <BorderlessButton onPress={navigation.goBack}>
+          <Feather name="arrow-left" size={24} color="#15b6d6" />
+        </BorderlessButton>
+      )}
 
       <Text style={styles.title}>{title}</Text>
 
@@ -44,7 +47,7 @@ const styles = StyleSheet.create({
     paddingTop: 44,
 
     flexDirection: "row",
-    justifyContent: "space-between",
+    justifyContent:  "space-between",
     alignItems: "center",
   },
 

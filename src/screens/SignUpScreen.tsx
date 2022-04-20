@@ -1,10 +1,10 @@
 import React from 'react';
 import { StyleSheet, Text, View, Button, TextInput, ScrollView, Alert } from 'react-native';
-import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from 'firebase/auth';
+import { getAuth, createUserWithEmailAndPassword, sendEmailVerification, signOut } from 'firebase/auth';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import api from '../services/api';
-
+import { firebaseAccountValidator } from '../utils/validatorAccountFirebase'
 const auth = getAuth();
 
 const SignUpScreen: React.FC = () => {
@@ -12,6 +12,7 @@ const SignUpScreen: React.FC = () => {
   const [value, setValue] = React.useState({
     email: '',
     password: '',
+    confirmPassowrd: '',
     error: ''
   })
 
@@ -19,7 +20,15 @@ const SignUpScreen: React.FC = () => {
     if (value.email === '' || value.password === '') {
       setValue({
         ...value,
-        error: 'Email and password are mandatory.'
+        error: 'E-mail e senha são obrigatórios.'
+      })
+      return;
+    }
+
+    if (value.password !== value.confirmPassowrd) {
+      setValue({
+        ...value,
+        error: 'Senhas não conferem.'
       })
       return;
     }
@@ -27,7 +36,7 @@ const SignUpScreen: React.FC = () => {
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, value.email, value.password);
       await sendEmailVerification(userCredential.user);
-      
+      await signOut(auth);
       Alert.alert(
         "Cadastro realizado com sucesso!",
         "Enviamos instruções para ativar sua conta",
@@ -38,15 +47,15 @@ const SignUpScreen: React.FC = () => {
     } catch (error) {
       setValue({
         ...value,
-        error: error.message,
+        error: firebaseAccountValidator(error)
       })
+
     }
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
       {!!value.error && <View style={styles.error}><Text>{value.error}</Text></View>}
-
       <Text style={styles.label}>E-mail</Text>
       <TextInput
         placeholder='E-mail'
@@ -61,6 +70,15 @@ const SignUpScreen: React.FC = () => {
         style={styles.input}
         value={value.password}
         onChangeText={(text) => setValue({ ...value, password: text })}
+        secureTextEntry={true}
+      />
+
+      <Text style={styles.label}>Confirmar senha</Text>
+      <TextInput
+        placeholder='Confirmar senha'
+        style={styles.input}
+        value={value.confirmPassowrd}
+        onChangeText={(text) => setValue({ ...value, confirmPassowrd: text })}
         secureTextEntry={true}
       />
 

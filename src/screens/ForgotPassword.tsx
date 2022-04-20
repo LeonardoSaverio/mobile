@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, TextInput, ScrollView, Alert } from 'react-nati
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native'
+import { firebaseAccountValidator } from '../utils/validatorAccountFirebase';
 
 const auth = getAuth();
 
@@ -17,7 +18,7 @@ const ForgotPassword: React.FC = () => {
     if (value.email === '') {
       setValue({
         ...value,
-        error: 'Email are mandatory.'
+        error: 'Preencha o campo de E-mail.'
       })
       return;
     }
@@ -34,7 +35,7 @@ const ForgotPassword: React.FC = () => {
     } catch (error) {
       setValue({
         ...value,
-        error: error.message,
+        error: firebaseAccountValidator(error)
       })
     }
   }
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFF',
   },
-
+  
   error: {
     marginTop: 10,
     padding: 10,

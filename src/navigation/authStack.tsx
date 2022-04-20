@@ -4,7 +4,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Header from '../components/Header';
 
-import WelcomeScreen from '../screens/Welcome';
 import SignInScreen from '../screens/SignInScreen';
 import SignOutScreen from '../screens/SignUpScreen';
 import ForgotPassword from '../screens/ForgotPassword';
@@ -21,12 +20,10 @@ export default function AuthStack() {
           cardStyle: { backgroundColor: "#f2f3f5" },
         }}
       >
-        <Screen name="Welcome" component={WelcomeScreen}
-        />
         <Screen name="SignIn" component={SignInScreen}
           options={{
             headerShown: true,
-            header: () => <Header showCancel={false} title="Acesso" />,
+            header: () => <Header showCancel={false} hideArrowLeft={true} title="Acesso" />,
           }}
         />
         <Screen name="SignUp" component={SignOutScreen}

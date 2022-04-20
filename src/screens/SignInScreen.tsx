@@ -3,6 +3,7 @@ import { StyleSheet, Text, View, Button, TextInput, ScrollView, Alert } from 're
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native'
+import { firebaseAccountValidator } from '../utils/validatorAccountFirebase';
 
 const auth = getAuth();
 
@@ -18,7 +19,7 @@ const SignInScreen: React.FC = () => {
     if (value.email === '' || value.password === '') {
       setValue({
         ...value,
-        error: 'Email and password are mandatory.'
+        error: 'E-mail e senha são obrigatórios.'
       })
       return;
     }
@@ -33,20 +34,17 @@ const SignInScreen: React.FC = () => {
             { text: "OK", onPress: () => {} }
           ]
         );
-      }else {
-
       }
     } catch (error) {
       setValue({
         ...value,
-        error: error.message,
+        error: firebaseAccountValidator(error)
       })
     }
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
-
       {!!value.error && <View style={styles.error}><Text>{value.error}</Text></View>}
       <Text style={styles.label}>E-mail</Text>
       <TextInput
