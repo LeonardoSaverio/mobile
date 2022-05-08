@@ -13,7 +13,7 @@ import MapView, { Marker } from "react-native-maps";
 import { Feather, FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import { RectButton } from "react-native-gesture-handler";
 import { useRoute } from "@react-navigation/native";
-
+import { Product } from '../../shared/models/productModel';
 // import mapMarkerImg from "../images/map-marker.png";
 import api from "../../services/api";
 
@@ -21,20 +21,6 @@ interface ProductDetailsRouteParams {
   id: number;
 }
 
-interface Product {
-  id: number;
-  name: string;
-  brand: string;
-  type: string;
-  price: number;
-  description: string;
-  phone: string;
-  images: string[];
-  address: {
-    long: number;
-    lat: number;
-  }
-}
 
 export default function ProductDetails() {
   const route = useRoute();
@@ -82,7 +68,7 @@ export default function ProductDetails() {
             <View key={index}>
               <Image
                 style={styles.image}
-                source={{ uri: 'https://blog.jacto.com.br/wp-content/uploads/2020/07/cons%C3%B3rcio-de-maquinas-agr%C3%ADcolas.jpg', }}
+                source={{ uri: image }}
               />
             </View>
           ))}
@@ -92,9 +78,7 @@ export default function ProductDetails() {
             <View style={styles.dotsContainer}>
               {
                 product.images.map((_, i) => (
-                  <>
-                    <View style={[styles.dot, { backgroundColor: i === activeIndex ? '#fff' : 'rgba(255, 255, 255, 0.5);' }]} />
-                  </>
+                  <View key={i} style={[styles.dot, { backgroundColor: i === activeIndex ? '#fff' : 'rgba(255, 255, 255, 0.5);' }]} />
                 ))
               }
             </View>
@@ -104,8 +88,27 @@ export default function ProductDetails() {
 
       <View style={styles.detailsContainer}>
         <Text style={styles.title}>{product.name} - {product.brand}</Text>
-        <Text style={styles.title}>{product.type}</Text>
-        <Text style={styles.title}>{product.price} R$</Text>
+        <Text style={{
+          color: "#4D6F80",
+          fontSize: 20,
+          fontFamily: "Nunito_700Bold",
+          marginBottom: 10,
+          marginTop: 10
+        }}>{product.type} - {product.price}R$</Text>
+
+        <View style={{ display: "flex", flexDirection: "row" }}>
+          <Text style={{
+            color: "#4D6F80",
+            fontSize: 15,
+            fontFamily: "Nunito_700Bold",
+          }}>Disponivel para </Text>
+          {product.adType.map(adType => (
+            <View style={adType === 'SALE' ?  styles.scheduleItemGreen : styles.scheduleItemBlue }>
+              <Text key={adType} style={adType === 'SALE' ?  styles.scheduleTextGreen : styles.scheduleTextBlue }
+              >{adType === 'SALE' ? 'Venda' : 'Aluguel'}</Text>
+            </View>
+          ))}
+        </View>
 
         <Text style={styles.description}>{product.description}</Text>
 
@@ -141,13 +144,6 @@ export default function ProductDetails() {
           </TouchableOpacity>
         </View>
 
-        {/* <View style={styles.separator} /> */}
-        {/* 
-        <Text style={styles.title}>Instruções para visita</Text>
-        <Text style={styles.description}>dasdwdddddd</Text> */}
-
-
-
         <RectButton style={styles.contactButton} onPress={handleWhatsapp}>
           <FontAwesome name="whatsapp" size={24} color="#FFF" />
           <Text style={styles.contactButtonText}>Entrar em contato</Text>
@@ -174,7 +170,6 @@ const styles = StyleSheet.create({
 
   dotsContainer: {
     flexDirection: 'row',
-    // marginTop: 10,
     position: 'absolute',
     bottom: 0,
     alignSelf: 'center',
@@ -231,29 +226,14 @@ const styles = StyleSheet.create({
     color: "#0089a5",
   },
 
-  separator: {
-    height: 0.8,
-    width: "100%",
-    backgroundColor: "#D3E2E6",
-    marginVertical: 40,
-  },
-
-  scheduleContainer: {
-    marginTop: 24,
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-
-  scheduleItem: {
-    width: "48%",
-    padding: 20,
-  },
-
   scheduleItemBlue: {
     backgroundColor: "#E6F7FB",
     borderWidth: 1,
     borderColor: "#B3DAE2",
     borderRadius: 20,
+    paddingRight: 4,
+    paddingLeft: 4,
+    marginRight: 4
   },
 
   scheduleItemGreen: {
@@ -261,32 +241,21 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#A1E9C5",
     borderRadius: 20,
-  },
-
-  scheduleItemRed: {
-    backgroundColor: "#FEF6F9",
-    borderWidth: 1,
-    borderColor: "#FFBCD4",
-    borderRadius: 20,
-  },
-
-  scheduleText: {
-    fontFamily: "Nunito_600SemiBold",
-    fontSize: 16,
-    lineHeight: 24,
-    marginTop: 20,
+    paddingLeft: 4,
+    paddingRight: 4,
+    marginRight: 4
   },
 
   scheduleTextBlue: {
     color: "#5C8599",
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 15,
   },
 
   scheduleTextGreen: {
     color: "#37C77F",
-  },
-
-  scheduleTextRed: {
-    color: "#FF669D",
+    fontFamily: "Nunito_600SemiBold",
+    fontSize: 15,
   },
 
   contactButton: {

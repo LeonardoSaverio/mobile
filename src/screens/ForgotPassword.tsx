@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Text, View, TextInput, ScrollView, Alert } from 'react-native';
+import { StyleSheet, Text, View, TextInput, ScrollView, Alert, Image } from 'react-native';
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native'
@@ -42,6 +42,7 @@ const ForgotPassword: React.FC = () => {
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
+      <Image style={{ height: 140, width: 150, display: 'flex', alignSelf: 'center', marginBottom: 15 }} source={require('../../assets/logo.png')} />
 
       {!!value.error && <View style={styles.error}><Text>{value.error}</Text></View>}
       <Text style={styles.label}>E-mail</Text>
@@ -97,7 +98,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#FFF',
   },
-  
+
   error: {
     marginTop: 10,
     padding: 10,

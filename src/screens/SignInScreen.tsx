@@ -1,10 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, View, Button, TextInput, ScrollView, Alert } from 'react-native';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, View, Button, TextInput, ScrollView, Alert, Image } from 'react-native';
 import { getAuth, signInWithEmailAndPassword } from 'firebase/auth';
 import { RectButton, TouchableOpacity } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native'
 import { firebaseAccountValidator } from '../utils/validatorAccountFirebase';
-
+import { Error } from '../shared/models/errorModel';
+import api from '../services/api';
 const auth = getAuth();
 
 const SignInScreen: React.FC = () => {
@@ -16,6 +17,7 @@ const SignInScreen: React.FC = () => {
   })
 
   async function signIn() {
+
     if (value.email === '' || value.password === '') {
       setValue({
         ...value,
@@ -25,26 +27,44 @@ const SignInScreen: React.FC = () => {
     }
 
     try {
-     const userCredential = await signInWithEmailAndPassword(auth, value.email, value.password);
-      if(!userCredential.user.emailVerified){
+      const userCredential = await signInWithEmailAndPassword(auth, value.email, value.password);
+
+      if (!userCredential.user.emailVerified) {
         Alert.alert(
           "Email não verificado!",
           "Por favor verificar seu email",
           [
-            { text: "OK", onPress: () => {} }
+            { text: "OK", onPress: () => { } }
           ]
         );
+      } else {
+
+        if (userCredential.user.emailVerified === true) {
+          const data = {
+            id: userCredential.user.uid,
+            name: userCredential.user.displayName,
+            email: userCredential.user.email,
+            emailVerified: userCredential.user.emailVerified
+          }
+          api.post('register', data, {
+            headers: {
+              Authorization: `Bearer ${await userCredential.user.getIdToken()}`
+            }
+          }).then(res => console.log(res.data))
+        }
       }
     } catch (error) {
       setValue({
         ...value,
-        error: firebaseAccountValidator(error)
+        error: firebaseAccountValidator(error as Error)
       })
     }
   }
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
+      <Image  style={{height: 140, width: 150, display: 'flex', alignSelf: 'center', marginBottom: 15}} source={require('../../assets/logo.png')} />
+
       {!!value.error && <View style={styles.error}><Text>{value.error}</Text></View>}
       <Text style={styles.label}>E-mail</Text>
       <TextInput

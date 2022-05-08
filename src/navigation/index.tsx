@@ -1,10 +1,16 @@
 import React from 'react';
-import { useAuthentication } from '../utils/hooks/useAuthentication';
-import UserStack from './userStack';
-import AuthStack from './authStack';
 
-export default function RootNavigation() {
-  const { user } = useAuthentication();
+import { AuthenticatedUserProvider } from './AuthenticatedUserProvider';
+import RootNavigator from './RootNavigator';
 
-  return user ? <UserStack /> : <AuthStack />;
+/**
+ * Wrap all providers here
+ */
+
+export default function Routes() {
+  return (
+    <AuthenticatedUserProvider>
+      <RootNavigator />
+    </AuthenticatedUserProvider>
+  );
 }

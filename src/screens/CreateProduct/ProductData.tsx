@@ -1,25 +1,13 @@
 import React, { useState } from 'react';
-import { ScrollView, View, StyleSheet, Switch, Text, TextInput, TouchableOpacity, Image } from 'react-native';
+import { ScrollView, View, StyleSheet, Text, TextInput, TouchableOpacity, Image, Switch, Alert } from 'react-native';
+import MaskInput, { Masks } from 'react-native-mask-input';
 import { Feather } from '@expo/vector-icons';
 import { RectButton } from 'react-native-gesture-handler';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import api from '../../services/api';
-
-interface Product {
-  id: number;
-  name: string;
-  brand: string;
-  type: string;
-  price: number;
-  description: string;
-  phone: string;
-  images: string[];
-  address: {
-    long: number;
-    lat: number;
-  }
-}
+import { StatusAd, AdType } from '../../shared/models/productModel';
+import { defaultMessages, defaultRules, useValidation } from 'react-simple-form-validator';
 
 interface ProductDataRouteParams {
   address: {
@@ -41,31 +29,70 @@ export default function OrphanageData() {
   const [images, setImages] = useState<string[]>([]);
   const [description, setDescription] = useState('');
   const [phone, setPhone] = useState('');
+  const [rent, setRent] = useState(false);
+  const [sale, setSale] = useState(false);
 
-  const [open_on_weekends, setOpenOnWeekends] = useState(true);
+
+  const { isFieldInError, getErrorsInField, isFormValid, getErrorMessages } = useValidation({
+    fieldsRules: {
+      name: { required: true },
+      brand: { required: true },
+      type: { required: true },
+      price: { required: true },
+      images: { required: true },
+      description: { required: true },
+      phone: { required: true, minlength: 15 },
+    },
+    state: { name, brand, type, price, images, description, phone },
+    locale: 'ptBR',
+    labels: {
+      name: "Nome",
+      brand: "Marca",
+      type: "Tipo",
+      price: "Preço",
+      images: "Fotos",
+      description: "Descrição",
+      phone: "Telefone"
+    },
+    messages: {
+      ...defaultMessages,
+      ptBR: { ...defaultMessages['ptBR'], minlength: phone && 'O campo "Telefone" é inválido.' }
+    }
+  });
 
   const navigation = useNavigation<any>();
   const routes = useRoute();
   const params = routes.params as ProductDataRouteParams;
 
+  function selectedAdType() {
+    if (rent && sale) {
+      return `{${AdType.SALE}, ${AdType.RENT}}`
+    } else if (rent) {
+      return `{${AdType.RENT}}`
+    } else {
+      return `{${AdType.SALE}}`
+    }
+  }
+
   async function handleCreateOrphanage() {
     const address = params.address;
 
     const data = new FormData();
-    
+
     data.append('name', name);
     data.append('brand', brand);
     data.append('type', type);
-    data.append('price', price);
+    data.append('price', String(parseFloat(price.replace('R$', '').replace(',', '.').replace(' ', ''))));
     data.append('description', description);
     data.append('phone', phone);
+    data.append('adType', selectedAdType());
     data.append('lat', String(address.lat));
     data.append('long', String(address.long));
     data.append('country', address.country);
     data.append('uf', address.uf);
     data.append('city', address.city);
     data.append('street', address.street);
-    data.append('number', address.number);
+    data.append('number', address.number || String(0));
 
     images.forEach((image, index) => {
       data.append('images', {
@@ -74,11 +101,17 @@ export default function OrphanageData() {
         uri: image,
       } as any);
     });
-    // console.log(images)
+
+    // console.log(getErrorsInField(''), isFieldInError(''))
     // console.log(data)
-    // await api.post('product', data);
-    // console.log(data)
-    // navigation.navigate('OrphanagesMap');
+    console.log(isFormValid)
+    if (isFormValid) {
+      await api.post('product', data);
+
+      Alert.alert('Sucesso', 'Cadastro realizado.', [{ onPress: () => navigation.navigate('Home') }])
+    } else {
+      Alert.alert('Preencha os seguintes campos', getErrorMessages())
+    }
   }
 
   async function handleSelectImages() {
@@ -99,18 +132,6 @@ export default function OrphanageData() {
     if (result.cancelled) {
       return;
     }
-
-    // console.log({
-    //   name,
-    //   // latitude,
-    //   // longitude,
-    //   about,
-    //   instructions,
-    //   opening_hours,
-    //   open_on_weekends,
-    // });
-
-    // console.log(result)
 
     const { uri: image } = result;
     setImages([...images, image]);
@@ -147,10 +168,11 @@ export default function OrphanageData() {
       />
 
       <Text style={styles.label}>Preço</Text>
-      <TextInput
+      <MaskInput
         style={styles.input}
         value={price}
         onChangeText={setPrice}
+        mask={Masks.BRL_CURRENCY}
         keyboardType={'numeric'}
       />
 
@@ -162,11 +184,6 @@ export default function OrphanageData() {
         value={description}
         onChangeText={setDescription}
       />
-
-      {/* <Text style={styles.label}>Whatsapp</Text>
-      <TextInput
-        style={styles.input}
-      /> */}
 
       <Text style={styles.label}>Fotos</Text>
       <View style={styles.uploadedImagesContaier}>
@@ -194,41 +211,31 @@ export default function OrphanageData() {
         <Feather name="plus" size={24} color="#15B6D6" />
       </TouchableOpacity>
 
-
-      {/* <Text style={styles.label}>Instruções</Text>
-      <TextInput
-        style={[styles.input, { height: 110 }]}
-        multiline
-        value={type}
-        onChangeText={setType}
-      />
-
-      <Text style={styles.label}>Horario de visitas</Text>
-      <TextInput
-        style={styles.input}
-        value={price}
-        onChangeText={setPrice}
-      /> */}
-
-
-
-      {/* <View style={styles.switchContainer}>
-        <Text style={styles.label}>Atende final de semana?</Text>
+      <View style={styles.switchContainer}>
+        <Text style={styles.label}>Deseja alugar?</Text>
         <Switch
           thumbColor="#fff"
           trackColor={{ false: '#ccc', true: '#39CC83' }}
-          value={open_on_weekends}
-          onValueChange={setOpenOnWeekends}
+          value={rent}
+          onValueChange={setRent}
         />
-      </View> */}
+        <Text style={styles.label}>Deseja vender?</Text>
+        <Switch
+          thumbColor="#fff"
+          trackColor={{ false: '#ccc', true: '#39CC83' }}
+          value={sale}
+          onValueChange={setSale}
+        />
+      </View>
 
       <Text style={styles.title}>Contato</Text>
 
       <Text style={styles.label}>Telefone</Text>
-      <TextInput
+      <MaskInput
         style={styles.input}
         value={phone}
         onChangeText={setPhone}
+        mask={Masks.BRL_PHONE}
         keyboardType={'phone-pad'}
       />
 
@@ -305,7 +312,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: 16,
+    marginBottom: 16,
   },
 
   nextButton: {
@@ -321,5 +328,12 @@ const styles = StyleSheet.create({
     fontFamily: 'Nunito_800ExtraBold',
     fontSize: 16,
     color: '#FFF',
+  },
+
+  errorText: {
+    color: '#c55252',
+    fontSize: 12,
+    marginLeft: 10,
+    marginTop: -16
   }
 })

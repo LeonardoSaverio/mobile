@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: 'http://192.168.43.246:3333'
+  baseURL: 'https://agromarket-app.herokuapp.com'
 })
 
 export default api;

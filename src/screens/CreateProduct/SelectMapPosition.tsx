@@ -65,12 +65,6 @@ export default function SelectMapPosition() {
         />
       </View>
       <MapView
-        initialRegion={{
-          latitude: -13.700415,
-          longitude: -69.7176533,
-          latitudeDelta: 0.008,
-          longitudeDelta: 0.008,
-        }}
         region={{
           latitude: position.latitude,
           longitude: position.longitude,

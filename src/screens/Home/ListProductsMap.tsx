@@ -1,43 +1,20 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button, Dimensions, SafeAreaView, TouchableOpacity, KeyboardAvoidingView, Alert } from 'react-native';
+import { StyleSheet, Text, View, Button, Dimensions, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import * as Location from 'expo-location'
 import MapView, { Callout, Marker, PROVIDER_GOOGLE } from "react-native-maps";
-import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { Feather, FontAwesome5, Ionicons, AntDesign } from "@expo/vector-icons";
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { getAuth, signOut } from 'firebase/auth';
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
+import { useNavigation } from '@react-navigation/native';
+import { FontAwesome5,   } from "@expo/vector-icons";
 
-import mapMarker from '../../images/map-marker.png';
-// listar products por estado ou cidade, e renderizar novamente toda vez que mudar o estado ou cidade.
-import api from "../../services/api";
-import { RectButton } from "react-native-gesture-handler";
+import { Product } from '../../shared/models/productModel';
 
-import ListProducts from "./ListProducts";
-
-
-interface Product {
-    id: number;
-    name: string;
-    brand: string;
-    type: string;
-    price: number;
-    description: string;
-    phone: string;
-    images: string[];
-    address: {
-        long: number;
-        lat: number;
-    }
-}
 
 interface ProductProps {
     products: Product[];
+    latLng?: [number, number];
 }
 
-export default function ({ products }: ProductProps) {
-    const { user } = useAuthentication();
+export default function ({ products, latLng }: ProductProps) {
     const [initialPosition, setInitialPosition] = useState<[number, number]>([0, 0]);
     const navigation = useNavigation<any>();
 
@@ -72,11 +49,11 @@ export default function ({ products }: ProductProps) {
                 <MapView
                     provider={PROVIDER_GOOGLE}
                     style={styles.map}
-                    initialRegion={{
-                        latitude: initialPosition[0],
-                        longitude: initialPosition[1],
-                        latitudeDelta: 0.008,
-                        longitudeDelta: 0.008,
+                    region={{
+                        latitude: latLng?.[0] ? latLng[0] : initialPosition[0],
+                        longitude: latLng?.[1] ? latLng[1] : initialPosition[1],
+                        latitudeDelta: 0.100,
+                        longitudeDelta: 0.100,
                     }}
                     mapType="standard"
                     loadingEnabled={false}

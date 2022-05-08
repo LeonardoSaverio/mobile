@@ -23,8 +23,8 @@ export default function SelectMapPosition() {
     }
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
-            <TouchableOpacity style={styles.logoutButton} onPress={()=> signOut(auth)}>
+        <View style={styles.container} >
+            <TouchableOpacity style={styles.logoutButton} onPress={() => signOut(auth)}>
                 <SimpleLineIcons name="logout" size={24} color="#5c8599" />
             </TouchableOpacity>
             <View style={styles.headerChange}>
@@ -42,7 +42,7 @@ export default function SelectMapPosition() {
                 <MyProducts />
             )}
 
-        </ScrollView>
+        </View>
 
     )
 
@@ -51,6 +51,7 @@ export default function SelectMapPosition() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        padding: 24
     },
 
     headerChange: {

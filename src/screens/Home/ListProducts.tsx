@@ -1,33 +1,17 @@
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, ScrollView, Button, TouchableNativeFeedback } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, Image, Dimensions, ScrollView, Button, TouchableNativeFeedback, FlatList } from 'react-native';
 import { Entypo } from '@expo/vector-icons';
 import Popover, { PopoverMode, PopoverPlacement } from 'react-native-popover-view';
 import { useNavigation } from "@react-navigation/native";
 import { RectButton } from "react-native-gesture-handler";
-
-interface Product {
-    id: number;
-    name: string;
-    brand: string;
-    type: string;
-    price: number;
-    description: string;
-    phone: string;
-    images: string[];
-    address: {
-        long: number;
-        lat: number;
-    }
-}
-
+import { Product } from '../../shared/models/productModel';
 
 interface ProductProps {
     products: Product[];
 }
 
 
-
-export default function ListProducts({ products }: ProductProps) {
+const Item = ({ product }: { product: Product }) => {
     const navigation = useNavigation<any>();
 
     function handleNavigateToProductDetails(id: number) {
@@ -35,35 +19,44 @@ export default function ListProducts({ products }: ProductProps) {
     }
 
     return (
-        <ScrollView style={styles.container} contentContainerStyle={{ padding: 24 }}>
-
-            {products.length !== 0 ? (
-                <>
-                    {products.map(product => (
-                        <TouchableNativeFeedback key={product.id} onPress={() => handleNavigateToProductDetails(product.id)}>
-                            <View style={styles.productContainer}>
-                                <Image
-                                    source={{ uri: 'https://blog.jacto.com.br/wp-content/uploads/2020/07/cons%C3%B3rcio-de-maquinas-agr%C3%ADcolas.jpg' }}
-                                    style={styles.image}
-                                />
-
-                                <View
-                                    style={styles.productDescriptionContainer}
-                                >
-                                    <Text style={styles.productDescriptionContainerText}>{product.name}</Text>
-                                    <Text style={styles.productDescriptionContainerText}>{product.price}</Text>
-                                </View>
-                            </View>
-                        </TouchableNativeFeedback>
-                    ))}
-                </>
-            ) : (
-                <View>
-                    <Text>Nenhum produto encontrado</Text>
+        <TouchableNativeFeedback onPress={() => { handleNavigateToProductDetails(product.id) }}>
+            <View style={styles.productContainer}>
+                <Image
+                    source={{ uri: product.images[0] }}
+                    style={styles.image}
+                />
+                <View
+                    style={styles.productDescriptionContainer}
+                >
+                    <Text style={styles.productDescriptionContainerText}>{product.name}</Text>
+                    <Text style={styles.productDescriptionContainerText}>{product.price} R$</Text>
                 </View>
-            )}
-        </ScrollView>
+            </View>
+        </TouchableNativeFeedback>
+    );
+}
 
+export default function ListProducts({ products }: ProductProps) {
+
+
+
+    const renderItem = (product: Product | any) => {
+        return (
+            <Item product={product.item} />
+        )
+    }
+
+
+    return (
+        <View style={styles.container} >
+            <FlatList
+                data={products as Product | any}
+                keyExtractor={(item) => item.id}
+                renderItem={renderItem}
+                showsVerticalScrollIndicator={false}
+                initialNumToRender={10}
+            />
+        </View>
     )
 }
 
@@ -73,6 +66,7 @@ const styles = StyleSheet.create({
         flex: 1,
         marginTop: 160,
         marginBottom: 80,
+        padding: 24,
     },
     productContainer: {
         borderRadius: 20,

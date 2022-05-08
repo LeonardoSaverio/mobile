@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Alert } from 'react-native';
 import { updatePassword } from 'firebase/auth';
-import { useAuthentication } from '../../utils/hooks/useAuthentication';
 import { firebaseAccountValidator } from '../../utils/validatorAccountFirebase';
 import { Feather } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
-import { RectButton } from 'react-native-gesture-handler';
+import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { AuthenticatedUserContext } from '../../navigation/AuthenticatedUserProvider';
 
 
 export default function UpdatePassword() {
@@ -16,7 +16,7 @@ export default function UpdatePassword() {
         error: ''
     })
 
-    const { user } = useAuthentication();
+    const { user } = useContext(AuthenticatedUserContext);
 
     useEffect(() => {
         setValue({ ...value, email: user?.email! })
@@ -61,7 +61,7 @@ export default function UpdatePassword() {
     }
 
     return (
-        <View style={styles.updatePasswordContainer}>
+        <ScrollView style={styles.updatePasswordContainer}>
             {!!value.error && <View style={styles.error}><Text>{value.error}</Text></View>}
 
             <Text style={styles.label}>E-mail</Text>
@@ -92,7 +92,7 @@ export default function UpdatePassword() {
             <RectButton style={styles.nextButton} onPress={handleUpdateUser}>
                 <Text style={styles.nextButtonText}>Atualizar</Text>
             </RectButton>
-        </View>
+        </ScrollView>
     )
 }
 
