@@ -14,7 +14,6 @@ import { Feather, FontAwesome5, FontAwesome } from "@expo/vector-icons";
 import { RectButton } from "react-native-gesture-handler";
 import { useRoute } from "@react-navigation/native";
 import { Product } from '../../shared/models/productModel';
-// import mapMarkerImg from "../images/map-marker.png";
 import api from "../../services/api";
 
 interface ProductDetailsRouteParams {
@@ -103,8 +102,8 @@ export default function ProductDetails() {
             fontFamily: "Nunito_700Bold",
           }}>Disponivel para </Text>
           {product.adType.map(adType => (
-            <View style={adType === 'SALE' ?  styles.scheduleItemGreen : styles.scheduleItemBlue }>
-              <Text key={adType} style={adType === 'SALE' ?  styles.scheduleTextGreen : styles.scheduleTextBlue }
+            <View key={adType}  style={adType === 'SALE' ?  styles.scheduleItemGreen : styles.scheduleItemBlue }>
+              <Text style={adType === 'SALE' ?  styles.scheduleTextGreen : styles.scheduleTextBlue }
               >{adType === 'SALE' ? 'Venda' : 'Aluguel'}</Text>
             </View>
           ))}
