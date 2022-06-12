@@ -74,7 +74,7 @@ export default function OrphanageData() {
     }
   }
 
-  async function handleCreateOrphanage() {
+  async function handleCreateProduct() {
     const address = params.address;
 
     const data = new FormData();
@@ -82,7 +82,7 @@ export default function OrphanageData() {
     data.append('name', name);
     data.append('brand', brand);
     data.append('type', type);
-    data.append('price', String(parseFloat(price.replace('R$', '').replace(',', '.').replace(' ', ''))));
+    data.append('price', price);
     data.append('description', description);
     data.append('phone', phone);
     data.append('adType', selectedAdType());
@@ -102,9 +102,6 @@ export default function OrphanageData() {
       } as any);
     });
 
-    // console.log(getErrorsInField(''), isFieldInError(''))
-    // console.log(data)
-    console.log(isFormValid)
     if (isFormValid) {
       await api.post('product', data);
 
@@ -172,7 +169,6 @@ export default function OrphanageData() {
         style={styles.input}
         value={price}
         onChangeText={setPrice}
-        mask={Masks.BRL_CURRENCY}
         keyboardType={'numeric'}
       />
 
@@ -239,7 +235,7 @@ export default function OrphanageData() {
         keyboardType={'phone-pad'}
       />
 
-      <RectButton style={styles.nextButton} onPress={handleCreateOrphanage}>
+      <RectButton style={styles.nextButton} onPress={handleCreateProduct}>
         <Text style={styles.nextButtonText}>Cadastrar</Text>
       </RectButton>
     </ScrollView>

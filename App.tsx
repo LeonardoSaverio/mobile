@@ -6,7 +6,7 @@ import { Nunito_400Regular, Nunito_600SemiBold, Nunito_700Bold, Nunito_800ExtraB
 
 
 export default function App() {
-  // console.disableYellowBox = true;
+  console.disableYellowBox = true;
   
   let [fontsLoaded] = useFonts({
     Nunito_400Regular,
